@@ -1,0 +1,21 @@
+server:
+  port: 8092
+
+spring:
+  datasource:
+    drive-clas-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/UserProfileDB
+    username: postgres
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+# JWT
+myjwt:
+  secretkey: ${secretkey}
+  audience: ${audience}
+  issuer: ${issuer}
