@@ -5,6 +5,7 @@ import com.boost.dto.request.LoginRequestDto;
 import com.boost.dto.request.RegisterRequestDto;
 import com.boost.dto.response.LoginResponseDto;
 import com.boost.dto.response.RegisterResponseDto;
+import com.boost.dto.response.RoleResponseDto;
 import com.boost.repository.entity.Auth;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -26,4 +27,6 @@ public interface IAuthMapper {
     RegisterResponseDto toRegisterResponseDto(final Auth auth);
 
     Auth toAuth(final ActivateRequestDto dto);
+
+    RoleResponseDto toRoleResponseDto(final Auth auth);
 }

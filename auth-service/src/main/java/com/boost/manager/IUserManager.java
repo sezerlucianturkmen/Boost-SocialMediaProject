@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import static com.boost.constants.ApiUrls.*;
 
-@FeignClient(url = "http://localhost:8092/api/v1/user",name = "user-service-userprofile",decode404 = true)
+@FeignClient(url = "${myapplication.feign.user}/user",name = "user-service-userprofile",decode404 = true)
 public interface IUserManager {
 
     @PostMapping(CREATE)
     public ResponseEntity<Boolean> createUser(@RequestBody NewUserCreateDto dto);
-
-    @PostMapping(ACTIVATE)
+    @PostMapping(ACTIVATESTATUS)
     public ResponseEntity<Boolean> activateStatus(@RequestBody ActivateRequestDto dto);
 
-    @PostMapping("/activate/{authid}")
+    @PostMapping(ACTIVATESTATUSBYID)
     public ResponseEntity<Boolean> activateStatus(@PathVariable Long authid);
+
 }

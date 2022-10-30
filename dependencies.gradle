@@ -1,13 +1,15 @@
 ext {
 
     versions = [
-            springBoot : "2.7.4",
-            lombok     : "1.18.24",
-            postgresql : "42.5.0",
-            mapstruct  : "1.5.2.Final",
-            openApi    : "1.6.11",
-            springCloud: "3.1.4",
-            auth0      : "4.0.0",
+            springBoot          : "2.7.4",
+            lombok              : "1.18.24",
+            postgresql          : "42.5.0",
+            mapstruct           : "1.5.2.Final",
+            openApi             : "1.6.11",
+            springCloud         : "3.1.4",
+            auth0               : "4.0.0",
+            graphql             : "13.0.0",
+            graphiql            : "11.1.0",
 
     ]
 
@@ -37,6 +39,17 @@ ext {
             // Mikro Servislerin endponit takiplerini yapmak ve yaşam döngülerini takip etmek için kullanılır.
             springCloudStaterSleuth             : "org.springframework.cloud:spring-cloud-starter-sleuth:$versions.springCloud",
             springCloudSleuthZipkin             : "org.springframework.cloud:spring-cloud-sleuth-zipkin:$versions.springCloud",
+
+            // Redis kullanımı için gerekli olan bağımlılıklar
+            springDataRedis                     : "org.springframework.boot:spring-boot-starter-data-redis:$versions.springBoot",
+
+            // Elastic Search için gerekli data bağımlılıkları
+            springDataElasticSearch             : "org.springframework.boot:spring-boot-starter-data-elasticsearch:$versions.springBoot",
+
+            // GraphQL için gerekli bağımlılıklar
+            springGraphQL           : "com.graphql-java-kickstart:graphql-spring-boot-starter:$versions.graphql",
+            springGraphQLUI         : "com.graphql-java-kickstart:graphiql-spring-boot-starter:$versions.graphiql",
+            springGraphQLTools      : "com.graphql-java-kickstart:graphql-java-tools:$versions.graphql",
 
     ]
 

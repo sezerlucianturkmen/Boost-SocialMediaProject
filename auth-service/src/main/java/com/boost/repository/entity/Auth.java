@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Table(name = "tblauth")
 @Entity
@@ -14,7 +15,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 @Builder
-public class Auth {
+public class Auth implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;

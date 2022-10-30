@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Table(name = "tbluserprofile")
 @Entity
@@ -13,10 +14,10 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 @Builder
-public class UserProfile {
+public class UserProfile implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     Long authid;
     String username;
     String name;
@@ -25,11 +26,12 @@ public class UserProfile {
     String photo;
     String address;
     String about;
-    Long created;
+    @Builder.Default
+    Long created=System.currentTimeMillis();
     Long updated;
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    Status status=Status.ACTIVE;
+    Status status= Status.PENDING;
 
 
 

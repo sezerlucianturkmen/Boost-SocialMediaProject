@@ -5,10 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 
 @AllArgsConstructor
@@ -16,17 +13,18 @@ import javax.validation.constraints.Size;
 @Data
 @Builder
 public class RegisterRequestDto {
-    @NotNull(message = "Kullanıcı adı girilmesi zorunludur.")
-    @Size(min = 3, max=16)
+    @NotBlank
+    @Size(min = 3, max = 20 ,message = "Kullanýcý adý en az 3 karakter en fazla 20 karakter olabilir")
+
     private String username;
-    @NotNull(message = "Şifre girilmesi zorunludur.")
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=*!])(?=\\S+$).{8,}$",
-            message = "Şifre en az 8 karakterden oluşmalıdır. En az bir büyük harf, bir küçük harf, bir sayı ve bir özel karakter içermelidir.")
-    @Size(min = 8, max=64)
+    @NotBlank
+    @Size(min = 8, max = 32 ,message = "Þifre adý en az 8 karakter en fazla 32 karakter olabilir")
     private String password;
-    @Email(message = "Geçerli bir email adresi giriniz.")
+    @Email(message = "E mail formata uygun deðil")
+    @NotBlank
     private String email;
-    private String adminCode;
+
+    private  String adminCode;
 
 
 }

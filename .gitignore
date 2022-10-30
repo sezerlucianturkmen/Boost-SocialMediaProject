@@ -1,0 +1,10 @@
+# Project exclude paths
+/.gradle/
+/api-gateway-server/build/
+/api-gateway-server/build/classes/java/main/
+/auth-service/build/
+/auth-service/build/classes/java/main/
+/config-server/build/
+/config-server/build/classes/java/main/
+/user-service/build/
+/user-service/build/classes/java/main/

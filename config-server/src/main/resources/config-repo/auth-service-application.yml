@@ -1,3 +1,4 @@
+
 server:
   port: 8090
 
@@ -8,19 +9,28 @@ spring:
     service:
       name: auth-service
   datasource:
-    drive-clas-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/AuthDB
-    username: postgres
-    password: root
+    username: 'postgres'
+    password: 'root'
+    driver-class-name: org.postgresql.Driver
+    url: 'jdbc:postgresql://localhost:5432/AuthDB'
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-# JWT
-myjwt:
-  secretkey: ${secretkey}
-  audience: ${audience}
-  issuer: ${issuer}
+
+
+#Jwt
+
+
+secretkey: ${secretkey}
+audience:  ${audience}
+issuer:    ${issuer}
+
+redis:
+  host: localhost
+  port: 6379
+
+myapplication:
+  feign:
+    user: http://localhost:8092/api/v1

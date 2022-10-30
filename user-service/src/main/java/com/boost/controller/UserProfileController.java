@@ -3,8 +3,12 @@ package com.boost.controller;
 import com.boost.dto.request.ActivateRequestDto;
 import com.boost.dto.request.NewUserCreateDto;
 import com.boost.dto.request.UpdateRequestDto;
+import com.boost.dto.response.RoleResponseDto;
+import com.boost.dto.response.UserProfileRedisResponseDto;
+import com.boost.dto.response.UserProfileResponseDto;
 import com.boost.exception.ErrorType;
 import com.boost.exception.UserManagerException;
+import com.boost.mapper.IUserMapper;
 import com.boost.repository.entity.UserProfile;
 import com.boost.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +21,11 @@ import java.util.List;
 
 import static com.boost.constants.ApiUrls.*;
 @RestController
-@RequestMapping(USER)
 @RequiredArgsConstructor
+@RequestMapping(USER)
 public class UserProfileController {
-    private final UserProfileService userProfileService;
 
+    private final UserProfileService userProfileService;
 
     @PostMapping(CREATE)
     public ResponseEntity<Boolean> createUser(@RequestBody NewUserCreateDto dto){
@@ -32,26 +36,62 @@ public class UserProfileController {
         }catch (Exception e){
             throw  new UserManagerException(ErrorType.USER_NOT_CREATED);
         }
-    }
-    @PostMapping(ACTIVATE)
-    public ResponseEntity<Boolean> activateStatus(@RequestBody ActivateRequestDto dto){
-        return ResponseEntity.ok(userProfileService.activateStatus(dto));
+
     }
 
-    @PostMapping("/activate/{authid}")
+    @PostMapping(ACTIVATESTATUS)
+    public ResponseEntity<Boolean> activateStatus(@RequestBody ActivateRequestDto dto){
+
+        return ResponseEntity.ok(userProfileService.activateStatus(dto));
+
+    }
+    @PostMapping(ACTIVATESTATUSBYID)
     public ResponseEntity<Boolean> activateStatus(@PathVariable Long authid){
 
         return ResponseEntity.ok(userProfileService.activateStatus(authid));
 
     }
+
     @PutMapping(UPDATE)
     public ResponseEntity<Boolean> updateProfile(@RequestBody @Valid UpdateRequestDto dto){
 
+
         return ResponseEntity.ok(userProfileService.updateUser(dto)) ;
     }
+    @PutMapping("/updateredis")
+    public ResponseEntity<Boolean> updateProfileForRedis(@RequestBody @Valid UpdateRequestDto dto){
 
-    @GetMapping(("/findall"))
-    public ResponseEntity<List<UserProfile>> getList (){
-        return ResponseEntity.ok(userProfileService.findAll());
+
+        return ResponseEntity.ok(userProfileService.updateUser(dto)) ;
     }
+    @GetMapping(GETALL)
+    public ResponseEntity<List<UserProfileResponseDto>> findAll(){
+
+        return    ResponseEntity.ok(IUserMapper.INSTANCE.toUserProfileResponseDtoList(userProfileService.findAll()));
+    }
+
+
+    @GetMapping("/findbyusername/{username}")
+    public ResponseEntity<UserProfileRedisResponseDto> findbyUsername(@PathVariable String username){
+
+
+        return  ResponseEntity.ok(userProfileService.findByUsername(username));
+
+    }
+
+    @GetMapping("/findallactiveprofile")
+    public  ResponseEntity<List<UserProfile>> findAllActiveProfile(){
+
+        return ResponseEntity.ok(userProfileService.findAllActiveProfile());
+
+    }
+
+
+
+    @GetMapping("/findbyrole")
+    public ResponseEntity<List<RoleResponseDto>> findAllByRole(String roles){
+
+        return     ResponseEntity.ok(userProfileService.findByRole(roles));
+    }
+
 }
