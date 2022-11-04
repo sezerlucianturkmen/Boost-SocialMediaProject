@@ -17,11 +17,11 @@ import java.io.Serializable;
 @Builder
 public class Auth implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false,unique = true)
+    @Column(unique = true,nullable = false)
     private String username;
-    private String password;
+    private  String password;
     private String email;
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -29,5 +29,5 @@ public class Auth implements Serializable {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Status status=Status.PENDING;
-    private  String activatedCode;
+    private String activatedCode;
 }

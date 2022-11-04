@@ -47,9 +47,17 @@ ext {
             springDataElasticSearch             : "org.springframework.boot:spring-boot-starter-data-elasticsearch:$versions.springBoot",
 
             // GraphQL için gerekli bağımlılıklar
-            springGraphQL           : "com.graphql-java-kickstart:graphql-spring-boot-starter:$versions.graphql",
-            springGraphQLUI         : "com.graphql-java-kickstart:graphiql-spring-boot-starter:$versions.graphiql",
-            springGraphQLTools      : "com.graphql-java-kickstart:graphql-java-tools:$versions.graphql",
+            springGraphQL                       : "com.graphql-java-kickstart:graphql-spring-boot-starter:$versions.graphql",
+            springGraphQLUI                     : "com.graphql-java-kickstart:graphiql-spring-boot-starter:$versions.graphiql",
+            springGraphQLTools                  : "com.graphql-java-kickstart:graphql-java-tools:$versions.graphql",
+
+            // NoSQL veritabanları için bağlantı bağımlılığı
+            springBootDataMongodb               : "org.springframework.boot:spring-boot-starter-data-mongodb:$versions.springBoot",
+
+            springBootMailSender                : "org.springframework.boot:spring-boot-starter-mail:$versions.springBoot",
+
+            springBootRabbitMQ                  : "org.springframework.boot:spring-boot-starter-amqp:$versions.springBoot",
+
 
     ]
 

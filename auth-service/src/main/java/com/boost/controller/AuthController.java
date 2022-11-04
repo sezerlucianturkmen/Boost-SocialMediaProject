@@ -3,6 +3,7 @@ import com.boost.dto.request.ActivateRequestDto;
 import com.boost.dto.request.LoginRequestDto;
 import com.boost.dto.request.RegisterRequestDto;
 
+import com.boost.dto.request.UpdateRequestDto;
 import com.boost.dto.response.LoginResponseDto;
 import com.boost.dto.response.RegisterResponseDto;
 import com.boost.dto.response.RoleResponseDto;
@@ -51,7 +52,7 @@ public class AuthController {
 
     @PostMapping(ACTIVATESTATUS)
     public ResponseEntity<Boolean> activateStatus(@RequestBody  ActivateRequestDto dto){
-        return   ResponseEntity.ok(authService.activeteStatus(dto));
+        return   ResponseEntity.ok(authService.activateStatus(dto));
     }
 
     @GetMapping(GETALLAUTH)
@@ -68,6 +69,17 @@ public class AuthController {
     @GetMapping("/findbyrole/{roles}")
     public ResponseEntity<List<RoleResponseDto>> findAllByRole(@PathVariable String roles){
         return ResponseEntity.ok(authService.findByRole(roles));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Boolean> update(@RequestBody UpdateRequestDto dto){
+        return ResponseEntity.ok(authService.updateauth(dto));
+    }
+
+    @DeleteMapping(DELETE)
+    @Operation(summary = "Status deleted olarak düzenlenir")
+    public  ResponseEntity<Boolean> delete(@PathVariable  String token){
+        return ResponseEntity.ok(authService.deleteAuth(token));
     }
 
 }

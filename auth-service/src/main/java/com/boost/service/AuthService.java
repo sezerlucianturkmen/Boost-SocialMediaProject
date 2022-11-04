@@ -1,9 +1,6 @@
 package com.boost.service;
 
-import com.boost.dto.request.ActivateRequestDto;
-import com.boost.dto.request.LoginRequestDto;
-import com.boost.dto.request.NewUserCreateDto;
-import com.boost.dto.request.RegisterRequestDto;
+import com.boost.dto.request.*;
 import com.boost.dto.response.LoginResponseDto;
 import com.boost.dto.response.RegisterResponseDto;
 import com.boost.dto.response.RoleResponseDto;
@@ -11,6 +8,8 @@ import com.boost.exception.AuthManagerException;
 import com.boost.exception.ErrorType;
 import com.boost.manager.IUserManager;
 import com.boost.mapper.IAuthMapper;
+import com.boost.rabbitmq.model.UpdateUsernameEmail;
+import com.boost.rabbitmq.procedure.ActivatedCodeProducer;
 import com.boost.repository.IAuthRepository;
 import com.boost.repository.entity.Auth;
 import com.boost.repository.enums.Roles;
@@ -22,6 +21,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,23 +34,44 @@ public class AuthService extends ServiceManager<Auth,Long> {
     private JwtTokenManager jwtTokenManager;
     private final CacheManager cacheManager;
     // private final CodeGenerator codeGenerator;
-    public AuthService(IAuthRepository authRepository, IUserManager userManager, JwtTokenManager jwtTokenManager, CacheManager cacheManager) {
+
+    private ActivatedCodeProducer producer;
+    public AuthService(IAuthRepository authRepository, IUserManager userManager, JwtTokenManager jwtTokenManager, CacheManager cacheManager,ActivatedCodeProducer producer) {
         super(authRepository);
         this.authRepository = authRepository;
         this.userManager = userManager;
         this.jwtTokenManager = jwtTokenManager;
         this.cacheManager = cacheManager;
+        this.producer=producer;
 
         // this.codeGenerator = codeGenerator;
     }
-
+    @Transactional
     public RegisterResponseDto register(RegisterRequestDto dto) {
-        Auth auth= IAuthMapper.INSTANCE.toAuth(dto);
-        if (dto.getAdminCode()!=null&& dto.getAdminCode().equals("admin"))  {
+
+        Auth auth = IAuthMapper.INSTANCE.toAuth(dto);
+
+
+//        if (userIsExist(dto.getUsername())){
+//            throw  new AuthManagerException(ErrorType.USERNAME_DUPLICATE);
+//        }else {
+//
+//            if (dto.getAdminCode()!=null&& dto.getAdminCode().equals("admin"))  {
+//                auth.setRole(Roles.ADMIN);
+//            }
+//            try {
+//                return   save(auth);
+//            }catch (Exception e){
+//                throw  new AuthManagerException(ErrorType.USER_NOT_CREATED);
+//            }
+//
+//        }
+        if (dto.getAdminCode() != null && dto.getAdminCode().equals("admin")) {
             auth.setRole(Roles.ADMIN);
         }
         try {
             auth.setActivatedCode(CodeGenerator.generateCode(UUID.randomUUID().toString()));
+
             save(auth);
             cacheManager.getCache("findbyrole").evict(auth.getRole());
             userManager.createUser(NewUserCreateDto.builder()
@@ -58,9 +79,18 @@ public class AuthService extends ServiceManager<Auth,Long> {
                     .email(auth.getEmail())
                     .username(auth.getUsername())
                     .build());
-            return  IAuthMapper.INSTANCE.toRegisterResponseDto(auth);
-        }catch (AuthManagerException a){
-            throw  new AuthManagerException(ErrorType.USER_NOT_CREATED);
+
+            producer.sendActivatedCode(
+                    com.boost.rabbitmq.model.ActivateRequestDto.
+                            builder().email(auth.getEmail())
+                            .activatedCode(auth.getActivatedCode()).build());
+
+            return IAuthMapper.INSTANCE.toRegisterResponseDto(auth);
+
+        } catch (Exception e) {
+//                 delete(auth);
+            throw new AuthManagerException(ErrorType.USER_NOT_CREATED);
+
         }
     }
 
@@ -80,7 +110,7 @@ public class AuthService extends ServiceManager<Auth,Long> {
         }
     }
 
-    public boolean activeteStatus(ActivateRequestDto dto) {
+    public boolean activateStatus(ActivateRequestDto dto) {
         Optional<Auth> auth=authRepository.findById(dto.getId());
         if (auth.isEmpty()){
             throw  new AuthManagerException(ErrorType.USER_NOT_FOUND);
@@ -122,4 +152,45 @@ public class AuthService extends ServiceManager<Auth,Long> {
     }
 
 
+    public boolean updateauth(UpdateRequestDto dto) {
+        Optional<Long> authid=jwtTokenManager.getUserId(dto.getToken());
+        if (authid.isPresent()){
+            Optional<Auth> authDb=authRepository.findById(authid.get());
+            if (authDb.isPresent()){
+                authDb.get().setEmail(dto.getEmail());
+                authDb.get().setUsername(dto.getUsername());
+                save(authDb.get());
+                return true;
+            }else {throw new AuthManagerException(ErrorType.USER_NOT_FOUND);}
+        }else {throw new AuthManagerException(ErrorType.INVALID_TOKEN);}
+    }
+
+    @Transactional
+    public boolean deleteAuth(String token) {
+        Optional<Long> authId = jwtTokenManager.getUserId(token);
+        if (authId.isEmpty()) throw new AuthManagerException(ErrorType.INVALID_TOKEN);
+        Optional<Auth> auth = authRepository.findById(authId.get());
+        if (auth.isEmpty()) throw new AuthManagerException(ErrorType.USER_NOT_FOUND);
+        try {
+            auth.get().setStatus(Status.DELETED);
+            save(auth.get());
+            userManager.deleteUser(authId.get());
+            return true;
+        } catch (Exception e) {
+            throw new AuthManagerException(ErrorType.USER_NOT_DELETED);
+        }
+    }
+
+    public boolean updateAuthByRabbit(UpdateUsernameEmail updateUsernameEmail) {
+        Optional<Auth> auth=authRepository.findById(updateUsernameEmail.getAuthid());
+        if(auth.isPresent()){
+            auth.get().setEmail(updateUsernameEmail.getEmail());
+            auth.get().setUsername(updateUsernameEmail.getUsername());
+            save(auth.get());
+            return true;
+        }else{
+            throw new AuthManagerException(ErrorType.USER_INBALANCED);
+        }
+
+    }
 }

@@ -11,6 +11,9 @@ import com.boost.exception.UserManagerException;
 import com.boost.manager.IAuthManager;
 import com.boost.manager.IElasticManager;
 import com.boost.mapper.IUserMapper;
+import com.boost.rabbitmq.model.UpdateUsernameEmail;
+import com.boost.rabbitmq.procedure.UpdateUserProcedure;
+import com.boost.rabbitmq.procedure.UpdateUserProcedure;
 import com.boost.repository.IUserProfileRepository;
 import com.boost.repository.entity.UserProfile;
 import com.boost.repository.enums.Status;
@@ -19,7 +22,9 @@ import com.boost.utility.ServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +42,7 @@ import java.util.Optional;
  *
  */
 @Service
-public class UserProfileService extends ServiceManager<UserProfile,Long> {
+public class UserProfileService extends ServiceManager<UserProfile,String> {
 
     private final IUserProfileRepository userProfileRepository;
     private  final JwtTokenManager jwtTokenManager;
@@ -47,22 +52,31 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
     private final IAuthManager authManager;
 
     private  final IElasticManager elasticManager;
+    private  final UpdateUserProcedure updateUserProcedure;
 
     public UserProfileService(IUserProfileRepository userProfileRepository,
                               JwtTokenManager jwtTokenManager,IAuthManager authManager,
-                              IElasticManager elasticManager) {
+                              IElasticManager elasticManager,UpdateUserProcedure updateUserProcedure) {
         super(userProfileRepository);
         this.userProfileRepository = userProfileRepository;
         this.jwtTokenManager=jwtTokenManager;
         this.authManager=authManager;
         this.elasticManager=elasticManager;
+        this.updateUserProcedure=updateUserProcedure;
     }
 
 
+    @Transactional
     public UserProfile createUser(NewUserCreateDto dto){
-        UserProfile userProfile=userProfileRepository.save(IUserMapper.INSTANCE.toUserProfile(dto));
-        elasticManager.createUser(IUserMapper.INSTANCE.toUserProfileResponseDto(userProfile));
-        return userProfile;
+
+        try {
+            UserProfile userProfile=userProfileRepository.save(IUserMapper.INSTANCE.toUserProfile(dto));
+            elasticManager.createUser(IUserMapper.INSTANCE.toUserProfileResponseDto(userProfile));
+            return userProfile;
+        }catch (Exception e){
+            throw  new UserManagerException(ErrorType.USER_NOT_CREATED);
+        }
+
     }
 
 
@@ -94,6 +108,7 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
                 userProfileDb.get().setUpdated(System.currentTimeMillis());
                 save(userProfileDb.get());
                 elasticManager.update(IUserMapper.INSTANCE.toUserProfileResponseDto(userProfileDb.get()));
+                authManager.update(dto);
                 return true;
             }else {throw new UserManagerException(ErrorType.USER_NOT_FOUND);}
         }else {throw new UserManagerException(ErrorType.INVALID_TOKEN);}
@@ -124,6 +139,46 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
         }else {
             throw new UserManagerException(ErrorType.INVALID_TOKEN);
         }
+    }
+
+    public boolean updateUserForRabbitmq(UpdateRequestDto dto) {
+
+        Optional<Long> authid=jwtTokenManager.getUserId(dto.getToken());
+        if (authid.isPresent()){
+            Optional<UserProfile> userProfileDb=userProfileRepository.findOptionalByAuthid(authid.get());
+            if (userProfileDb.isPresent()){
+                boolean check=checkingUsernameAndEmail(dto,userProfileDb.get());
+                cacheManager.getCache("findbyusername").evict(userProfileDb.get().getUsername().toUpperCase());
+                userProfileDb.get().setEmail(dto.getEmail());
+                userProfileDb.get().setAddress(dto.getAddress());
+                userProfileDb.get().setAbout(dto.getAbout());
+                userProfileDb.get().setName(dto.getName());
+                userProfileDb.get().setUsername(dto.getUsername());
+                userProfileDb.get().setPhone(dto.getPhone());
+                userProfileDb.get().setPhone(dto.getPhoto());
+                save(userProfileDb.get());
+                if(check){
+                    updateUserProcedure.sendUpdateUser(UpdateUsernameEmail.builder()
+                                    .email(userProfileDb.get().getEmail())
+                                    .username(userProfileDb.get().getUsername())
+                                    .authid(userProfileDb.get().getAuthid())
+                            .build());
+                }
+
+                return true;
+            }else {
+                throw new UserManagerException(ErrorType.USER_NOT_FOUND);
+            }
+        }else {
+            throw new UserManagerException(ErrorType.INVALID_TOKEN);
+        }
+    }
+
+    public Boolean checkingUsernameAndEmail(UpdateRequestDto dto,UserProfile userprofile){
+        if(!dto.getUsername().equals(userprofile.getUsername()) || !dto.getEmail().equals(userprofile.getEmail())){
+            return true;
+        }
+        return false;
     }
 
     public Boolean activateStatus(Long authid) {
@@ -159,4 +214,39 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
     public List<RoleResponseDto> findByRole(String roles) {
         return authManager.findAllByRole(roles).getBody();
     }
+
+    @Transactional
+    public boolean deleteUser(Long id) {
+        Optional<UserProfile> userProfile=userProfileRepository.findOptionalByAuthid(id);
+
+        if (userProfile.isPresent()) {
+            userProfile.get().setStatus(Status.DELETED);
+            save(userProfile.get());
+            elasticManager.deleteUser(id);
+            return  true;
+        }else {
+            throw new UserManagerException(ErrorType.USER_NOT_FOUND);
+        }
+
+
+    }
+
+    public Page<UserProfile> findallPage(int pageSize, int pageNumber, String direction, String sortParameter) {
+
+        Sort sort=Sort.by(Sort.Direction.fromString(direction),sortParameter);
+        Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+        return userProfileRepository.findAll(pageable);
+
+    }
+
+    public Slice<UserProfile> findallSlice(int pageSize, int pageNumber, String direction, String sortParameter) {
+
+        Sort sort=Sort.by(Sort.Direction.fromString(direction),sortParameter);
+        Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+        return userProfileRepository.findAll(pageable);
+
+    }
+
+
+
 }

@@ -12,6 +12,8 @@ import com.boost.mapper.IUserMapper;
 import com.boost.repository.entity.UserProfile;
 import com.boost.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,6 +66,12 @@ public class UserProfileController {
 
         return ResponseEntity.ok(userProfileService.updateUser(dto)) ;
     }
+
+    @PutMapping("/updatewithrabbitmq")
+    public ResponseEntity<Boolean> updateProfileWithRabbitmq(@RequestBody @Valid UpdateRequestDto dto){
+        return ResponseEntity.ok(userProfileService.updateUserForRabbitmq(dto)) ;
+    }
+
     @GetMapping(GETALL)
     public ResponseEntity<List<UserProfileResponseDto>> findAll(){
 
@@ -92,6 +100,21 @@ public class UserProfileController {
     public ResponseEntity<List<RoleResponseDto>> findAllByRole(String roles){
 
         return     ResponseEntity.ok(userProfileService.findByRole(roles));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Boolean> deleteUser(@PathVariable Long id){
+        return  ResponseEntity.ok(userProfileService.deleteUser(id));
+    }
+
+
+    @GetMapping("/findbypagable")
+    public  ResponseEntity<Page<UserProfile>> findAllPAge(int pageSize, int pageNumber, String direction, String sortParameter){
+        return  ResponseEntity.ok(userProfileService.findallPage(pageSize,pageNumber,direction,sortParameter));
+    }
+    @GetMapping("/findbyslice")
+    public  ResponseEntity<Slice<UserProfile>> findAllSlice(int pageSize, int pageNumber, String direction, String sortParameter){
+        return  ResponseEntity.ok(userProfileService.findallSlice(pageSize,pageNumber,direction,sortParameter));
     }
 
 }

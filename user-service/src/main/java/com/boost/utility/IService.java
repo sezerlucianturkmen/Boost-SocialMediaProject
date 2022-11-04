@@ -2,7 +2,7 @@ package com.boost.utility;
 
 import java.util.List;
 
-public interface IServices<T, ID> {
+public interface IService<T, ID> {
     T save(T entity);
     Iterable<T> saveAll(Iterable<T> entities);
     T update(T entity);

@@ -18,8 +18,8 @@ import java.io.Serializable;
 @Document(indexName = "userprofile")
 public class UserProfile implements Serializable {
     @Id
-    String uuid;
-    Long userid;
+    String id;
+
     Long authid;
     String username;
     String name;

@@ -44,5 +44,9 @@ public class UserProfileController {
 
     }
 
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Boolean> deleteUser(@PathVariable Long id){
+        return  ResponseEntity.ok(userProfileService.deleteUser(id));
+    }
 
 }
