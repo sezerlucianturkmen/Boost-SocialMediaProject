@@ -7,23 +7,24 @@ import com.boost.rabbitmq.model.UpdateUsernameEmail;
 import com.boost.repository.IUserProfileRepository;
 import com.boost.repository.entity.UserProfile;
 import com.boost.repository.enums.Status;
-import com.boost.utility.JwtTokenManager;
 import com.boost.utility.ServiceManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-
+/**
+ * 1-Status deðiþdiði zaman bizim active status cache temizlensin
+ * 2-Userprofilecontrollerda bir endpoint
+ * buda bize dýþarýdan girdiðimiz role göre bize user profilelarý donsün
+ * ve bu metodu cachleyelim
+ * bu metod ne zaman deðiþecek yani bu cache bir metodun içinde yeri geldiði zaman silelim
+ */
 @Service
-public class UserProfileService extends ServiceManager<UserProfile,Long> {
+public class UserProfileService extends ServiceManager<UserProfile, Long> {
 
     private final IUserProfileRepository userProfileRepository;
-
 
 
     public UserProfileService(IUserProfileRepository userProfileRepository) {
@@ -48,16 +49,17 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
 
         return userProfileRepository.findByEmailContainingIgnoreCase(email);
     }
+
     @Transactional
     public boolean deleteUser(Long id) {
 
-        Optional<UserProfile> userProfile=userProfileRepository.findOptionalByAuthid(id);
+        Optional<UserProfile> userProfile = userProfileRepository.findOptionalByAuthid(id);
 
         if (userProfile.isPresent()) {
             userProfile.get().setStatus(Status.DELETED);
             save(userProfile.get());
-            return  true;
-        }else {
+            return true;
+        } else {
             throw new ElasticManagerException(ErrorType.USER_NOT_FOUND);
         }
     }
@@ -75,5 +77,4 @@ public class UserProfileService extends ServiceManager<UserProfile,Long> {
             throw new ElasticManagerException(ErrorType.USER_NOT_FOUND);
         }
     }
-
 }

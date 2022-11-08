@@ -3,6 +3,7 @@ package com.boost.utility;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ServiceManager<T, ID> implements IServices<T, ID>{
     private final JpaRepository<T,ID> service;
@@ -33,10 +34,9 @@ public class ServiceManager<T, ID> implements IServices<T, ID>{
     public void deleteById(ID id) {
         service.deleteById(id);
     }
-
-
-    public T findById(ID id) {
-        return service.getReferenceById(id);
+    @Override
+    public Optional<T> findById(ID id) {
+        return service.findById(id);
     }
 
     @Override

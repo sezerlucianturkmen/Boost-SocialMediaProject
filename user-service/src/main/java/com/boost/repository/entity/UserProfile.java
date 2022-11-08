@@ -20,7 +20,7 @@ import java.io.Serializable;
 public class UserProfile implements Serializable {
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
+
     String id;
     Long authid;
     String username;

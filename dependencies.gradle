@@ -16,6 +16,10 @@ ext {
     libs = [
             springBootWeb         : "org.springframework.boot:spring-boot-starter-web:$versions.springBoot",
             springBootJpa         : "org.springframework.boot:spring-boot-starter-data-jpa:$versions.springBoot",
+            // Spring Security - güvenlik bağımlılıkları
+            springBootStarterSecurity: "org.springframework.boot:spring-boot-starter-security:$versions.springBoot",
+
+
             lombok                : "org.projectlombok:lombok:$versions.lombok",
             postgresql            : "org.postgresql:postgresql:$versions.postgresql",
             mapstruct             : "org.mapstruct:mapstruct:$versions.mapstruct",

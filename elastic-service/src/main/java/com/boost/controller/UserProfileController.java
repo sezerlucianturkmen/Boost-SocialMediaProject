@@ -1,7 +1,6 @@
 package com.boost.controller;
 
 
-
 import com.boost.dto.response.UserProfileResponseDto;
 import com.boost.mapper.IUserMapper;
 import com.boost.repository.entity.UserProfile;
@@ -44,9 +43,11 @@ public class UserProfileController {
 
     }
 
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Boolean> deleteUser(@PathVariable Long id){
         return  ResponseEntity.ok(userProfileService.deleteUser(id));
     }
+
 
 }

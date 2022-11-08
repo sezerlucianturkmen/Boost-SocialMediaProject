@@ -5,14 +5,12 @@ import com.boost.dto.request.NewUserCreateDto;
 import com.boost.dto.request.UpdateRequestDto;
 import com.boost.dto.response.RoleResponseDto;
 import com.boost.dto.response.UserProfileRedisResponseDto;
-import com.boost.dto.response.UserProfileResponseDto;
 import com.boost.exception.ErrorType;
 import com.boost.exception.UserManagerException;
 import com.boost.manager.IAuthManager;
 import com.boost.manager.IElasticManager;
 import com.boost.mapper.IUserMapper;
 import com.boost.rabbitmq.model.UpdateUsernameEmail;
-import com.boost.rabbitmq.procedure.UpdateUserProcedure;
 import com.boost.rabbitmq.procedure.UpdateUserProcedure;
 import com.boost.repository.IUserProfileRepository;
 import com.boost.repository.entity.UserProfile;
@@ -30,73 +28,70 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 1-Status deðiþdiði zaman bizim active status cache temizlensin
+ * 1-Status değişdiği zaman bizim active status cache temizlensin
  * 2-Userprofilecontrollerda bir endpoint
- * buda bize dýþarýdan girdiðimiz role göre bize user profilelarý donsün
+ * buda bize dışarıdan girdiğimiz role göre bize user profileları donsün
  * ve bu metodu cachleyelim
- * bu metod ne zaman deðiþecek yani bu cache bir metodun içinde yeri geldiði zaman silelim
- *
- *
- *
- *
- *
+ * bu metod ne zaman değişecek yani bu cache bir metodun içinde yeri geldiği zaman silelim
  */
 @Service
-public class UserProfileService extends ServiceManager<UserProfile,String> {
+public class UserProfileService extends ServiceManager<UserProfile, String> {
 
     private final IUserProfileRepository userProfileRepository;
-    private  final JwtTokenManager jwtTokenManager;
+    private final JwtTokenManager jwtTokenManager;
     @Autowired
     private CacheManager cacheManager;
 
     private final IAuthManager authManager;
 
-    private  final IElasticManager elasticManager;
-    private  final UpdateUserProcedure updateUserProcedure;
+    private final IElasticManager elasticManager;
+
+    private final UpdateUserProcedure updateUserProcedure;
 
     public UserProfileService(IUserProfileRepository userProfileRepository,
-                              JwtTokenManager jwtTokenManager,IAuthManager authManager,
-                              IElasticManager elasticManager,UpdateUserProcedure updateUserProcedure) {
+                              JwtTokenManager jwtTokenManager, IAuthManager authManager,
+                              IElasticManager elasticManager, UpdateUserProcedure updateUserProcedure) {
         super(userProfileRepository);
         this.userProfileRepository = userProfileRepository;
-        this.jwtTokenManager=jwtTokenManager;
-        this.authManager=authManager;
-        this.elasticManager=elasticManager;
-        this.updateUserProcedure=updateUserProcedure;
+        this.jwtTokenManager = jwtTokenManager;
+        this.authManager = authManager;
+        this.elasticManager = elasticManager;
+        this.updateUserProcedure = updateUserProcedure;
     }
 
-
     @Transactional
-    public UserProfile createUser(NewUserCreateDto dto){
+    public UserProfile createUser(NewUserCreateDto dto) {
 
         try {
-            UserProfile userProfile=userProfileRepository.save(IUserMapper.INSTANCE.toUserProfile(dto));
+            UserProfile userProfile = userProfileRepository.save(IUserMapper.INSTANCE.toUserProfile(dto));
             elasticManager.createUser(IUserMapper.INSTANCE.toUserProfileResponseDto(userProfile));
             return userProfile;
-        }catch (Exception e){
-            throw  new UserManagerException(ErrorType.USER_NOT_CREATED);
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            throw new UserManagerException(ErrorType.USER_NOT_CREATED);
         }
 
     }
 
 
     public boolean activateStatus(ActivateRequestDto dto) {
-        Optional<UserProfile> userProfile=userProfileRepository.findOptionalByAuthid(dto.getId());
-        if (userProfile.isEmpty()){
-            throw  new UserManagerException(ErrorType.USER_NOT_FOUND);
+        Optional<UserProfile> userProfile = userProfileRepository.findOptionalByAuthid(dto.getId());
+        if (userProfile.isEmpty()) {
+            throw new UserManagerException(ErrorType.USER_NOT_FOUND);
         }
         userProfile.get().setStatus(Status.ACTIVE);
         save(userProfile.get());
-        return  true;
+        return true;
 
     }
 
     public boolean updateUser(UpdateRequestDto dto) {
 
-        Optional<Long> authid=jwtTokenManager.getUserId(dto.getToken());
-        if (authid.isPresent()){
-            Optional<UserProfile> userProfileDb=userProfileRepository.findOptionalByAuthid(authid.get());
-            if (userProfileDb.isPresent()){
+        Optional<Long> authid = jwtTokenManager.getUserId(dto.getToken());
+        if (authid.isPresent()) {
+            Optional<UserProfile> userProfileDb = userProfileRepository.findOptionalByAuthid(authid.get());
+            if (userProfileDb.isPresent()) {
                 cacheManager.getCache("findbyusername").evict(userProfileDb.get().getUsername().toUpperCase());
                 userProfileDb.get().setEmail(dto.getEmail());
                 userProfileDb.get().setAddress(dto.getAddress());
@@ -108,18 +103,26 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
                 userProfileDb.get().setUpdated(System.currentTimeMillis());
                 save(userProfileDb.get());
                 elasticManager.update(IUserMapper.INSTANCE.toUserProfileResponseDto(userProfileDb.get()));
-                authManager.update(dto);
                 return true;
-            }else {throw new UserManagerException(ErrorType.USER_NOT_FOUND);}
-        }else {throw new UserManagerException(ErrorType.INVALID_TOKEN);}
+            } else {
+                throw new UserManagerException(ErrorType.USER_NOT_FOUND);
+            }
+
+
+        } else {
+            throw new UserManagerException(ErrorType.INVALID_TOKEN);
+
+        }
+
+
     }
 
     public boolean updateUserForRedis(UpdateRequestDto dto) {
 
-        Optional<Long> authid=jwtTokenManager.getUserId(dto.getToken());
-        if (authid.isPresent()){
-            Optional<UserProfile> userProfileDb=userProfileRepository.findOptionalByAuthid(authid.get());
-            if (userProfileDb.isPresent()){
+        Optional<Long> authid = jwtTokenManager.getUserId(dto.getToken());
+        if (authid.isPresent()) {
+            Optional<UserProfile> userProfileDb = userProfileRepository.findOptionalByAuthid(authid.get());
+            if (userProfileDb.isPresent()) {
                 cacheManager.getCache("findbyusername").evict(userProfileDb.get().getUsername().toUpperCase());
                 userProfileDb.get().setEmail(dto.getEmail());
                 userProfileDb.get().setAddress(dto.getAddress());
@@ -129,25 +132,25 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
                 userProfileDb.get().setPhone(dto.getPhone());
                 userProfileDb.get().setPhone(dto.getPhoto());
                 save(userProfileDb.get());
-
                 return true;
-            }else {
+            } else {
                 throw new UserManagerException(ErrorType.USER_NOT_FOUND);
             }
-
-
-        }else {
+        } else {
             throw new UserManagerException(ErrorType.INVALID_TOKEN);
+
         }
+
+
     }
 
-    public boolean updateUserForRabbitmq(UpdateRequestDto dto) {
+    public boolean updateUserWithRabbitMq(UpdateRequestDto dto) {
 
-        Optional<Long> authid=jwtTokenManager.getUserId(dto.getToken());
-        if (authid.isPresent()){
-            Optional<UserProfile> userProfileDb=userProfileRepository.findOptionalByAuthid(authid.get());
-            if (userProfileDb.isPresent()){
-                boolean check=checkingUsernameAndEmail(dto,userProfileDb.get());
+        Optional<Long> authid = jwtTokenManager.getUserId(dto.getToken());
+        if (authid.isPresent()) {
+            Optional<UserProfile> userProfileDb = userProfileRepository.findOptionalByAuthid(authid.get());
+            if (userProfileDb.isPresent()) {
+                boolean check = chekingUsernameAndEmail(dto, userProfileDb.get());
                 cacheManager.getCache("findbyusername").evict(userProfileDb.get().getUsername().toUpperCase());
                 userProfileDb.get().setEmail(dto.getEmail());
                 userProfileDb.get().setAddress(dto.getAddress());
@@ -157,74 +160,81 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
                 userProfileDb.get().setPhone(dto.getPhone());
                 userProfileDb.get().setPhone(dto.getPhoto());
                 save(userProfileDb.get());
-                if(check){
+                if (check) {
                     updateUserProcedure.sendUpdateUser(UpdateUsernameEmail.builder()
-                                    .email(userProfileDb.get().getEmail())
-                                    .username(userProfileDb.get().getUsername())
-                                    .authid(userProfileDb.get().getAuthid())
-                            .build());
+                            .email(userProfileDb.get().getEmail())
+                            .username(userProfileDb.get().getUsername()).
+                            authid(userProfileDb.get().getAuthid()).build());
                 }
-
                 return true;
-            }else {
+            } else {
                 throw new UserManagerException(ErrorType.USER_NOT_FOUND);
             }
-        }else {
+        } else {
             throw new UserManagerException(ErrorType.INVALID_TOKEN);
+
         }
+
+
     }
 
-    public Boolean checkingUsernameAndEmail(UpdateRequestDto dto,UserProfile userprofile){
-        if(!dto.getUsername().equals(userprofile.getUsername()) || !dto.getEmail().equals(userprofile.getEmail())){
+    public Boolean chekingUsernameAndEmail(UpdateRequestDto dto, UserProfile userProfile) {
+
+
+        if (!dto.getUsername().equals(userProfile.getUsername()) || !dto.getEmail().equals(userProfile.getEmail())) {
             return true;
         }
+
         return false;
     }
 
     public Boolean activateStatus(Long authid) {
 
-        Optional<UserProfile> userProfile=userProfileRepository.findOptionalByAuthid(authid);
-        if (userProfile.isEmpty()){
-            throw  new UserManagerException(ErrorType.USER_NOT_FOUND);
+        Optional<UserProfile> userProfile = userProfileRepository.findOptionalByAuthid(authid);
+        if (userProfile.isEmpty()) {
+            throw new UserManagerException(ErrorType.USER_NOT_FOUND);
         }
         userProfile.get().setStatus(Status.ACTIVE);
         save(userProfile.get());
-        return  true;
+        return true;
     }
 
-    @Cacheable(value = "findbyusername",key = "#username.toUpperCase()")
+    @Cacheable(value = "findbyusername", key = "#username.toUpperCase()")
     public UserProfileRedisResponseDto findByUsername(String username) {
 
-        Optional<UserProfile> userProfile=userProfileRepository.findOptionalByUsernameEqualsIgnoreCase(username);
+        Optional<UserProfile> userProfile = userProfileRepository.findOptionalByUsernameEqualsIgnoreCase(username);
 
-        if (userProfile.isPresent()){
+        if (userProfile.isPresent()) {
             return IUserMapper.INSTANCE.toUserProfileRedisResponseDto(userProfile.get());
-        }else {
+        } else {
 
             throw new UserManagerException(ErrorType.USER_NOT_FOUND);
         }
+
     }
 
     @Cacheable(value = "findactiveprofile")
     public List<UserProfile> findAllActiveProfile() {
-        return  userProfileRepository.getActiveProfile();
+        return userProfileRepository.getActiveProfile();
     }
 
-    @Cacheable(value = "findbyrole",key = "#roles.toUpperCase()")
+
+    @Cacheable(value = "findbyrole", key = "#roles.toUpperCase()")
     public List<RoleResponseDto> findByRole(String roles) {
+
         return authManager.findAllByRole(roles).getBody();
     }
 
     @Transactional
     public boolean deleteUser(Long id) {
-        Optional<UserProfile> userProfile=userProfileRepository.findOptionalByAuthid(id);
+        Optional<UserProfile> userProfile = userProfileRepository.findOptionalByAuthid(id);
 
         if (userProfile.isPresent()) {
             userProfile.get().setStatus(Status.DELETED);
             save(userProfile.get());
             elasticManager.deleteUser(id);
-            return  true;
-        }else {
+            return true;
+        } else {
             throw new UserManagerException(ErrorType.USER_NOT_FOUND);
         }
 
@@ -233,20 +243,23 @@ public class UserProfileService extends ServiceManager<UserProfile,String> {
 
     public Page<UserProfile> findallPage(int pageSize, int pageNumber, String direction, String sortParameter) {
 
-        Sort sort=Sort.by(Sort.Direction.fromString(direction),sortParameter);
-        Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortParameter);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         return userProfileRepository.findAll(pageable);
 
     }
 
     public Slice<UserProfile> findallSlice(int pageSize, int pageNumber, String direction, String sortParameter) {
 
-        Sort sort=Sort.by(Sort.Direction.fromString(direction),sortParameter);
-        Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortParameter);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         return userProfileRepository.findAll(pageable);
 
     }
 
 
+    public Optional<UserProfile> findByAuthId(Long id) {
 
+        return userProfileRepository.findOptionalByAuthid(id);
+    }
 }

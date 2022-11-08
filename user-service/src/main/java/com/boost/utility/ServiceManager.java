@@ -1,53 +1,48 @@
 package com.boost.utility;
 
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
-public class ServiceManager<T, ID> implements IService<T, ID> {
-    /**
-     *
-     * @param t
-     * @return
-     */
-    private final MongoRepository<T, ID> repository;
-    public ServiceManager(MongoRepository<T, ID> repository) {
-        this.repository = repository;
+import java.util.Optional;
+
+public class ServiceManager<T, ID> implements IServices<T, ID>{
+    private final MongoRepository<T,ID> service;
+    public ServiceManager(MongoRepository<T,ID> service){
+        this.service = service;
+    }
+    @Override
+    public T save(T entity) {
+        return service.save(entity);
     }
 
     @Override
-    public T save(T t) {
-
-        return repository.save(t);
+    public Iterable<T> saveAll(Iterable<T> entities) {
+        return service.saveAll(entities);
     }
 
     @Override
-    public Iterable<T> saveAll(Iterable<T> t) {
-
-        return repository.saveAll(t);
+    public T update(T entity) {
+        return service.save(entity);
     }
 
     @Override
-    public T update(T t) {
-        return repository.save(t);
-    }
-
-    @Override
-    public void delete(T t) {
-        repository.delete(t);
+    public void delete(T entity) {
+        service.delete(entity);
     }
 
     @Override
     public void deleteById(ID id) {
-        repository.deleteById(id);
+        service.deleteById(id);
     }
 
-    @Override
-    public T findById(ID id) {
-        return repository.findById(id).orElse(null);
+
+    public Optional<T> findById(ID id) {
+        return service.findById(id);
     }
 
     @Override
     public List<T> findAll() {
-        return repository.findAll();
+        return service.findAll();
     }
 }
