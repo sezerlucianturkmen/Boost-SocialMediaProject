@@ -163,8 +163,8 @@ public class UserProfileService extends ServiceManager<UserProfile, String> {
                 if (check) {
                     updateUserProcedure.sendUpdateUser(UpdateUsernameEmail.builder()
                             .email(userProfileDb.get().getEmail())
-                            .username(userProfileDb.get().getUsername()).
-                            authid(userProfileDb.get().getAuthid()).build());
+                            .username(userProfileDb.get().getUsername())
+                            .authid(userProfileDb.get().getAuthid()).build());
                 }
                 return true;
             } else {
@@ -262,4 +262,9 @@ public class UserProfileService extends ServiceManager<UserProfile, String> {
 
         return userProfileRepository.findOptionalByAuthid(id);
     }
+
+//    public Optional<UserProfile> findById(String id) {
+//
+//        return userProfileRepository.findById(id);
+//    }
 }

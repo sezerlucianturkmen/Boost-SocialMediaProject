@@ -13,9 +13,14 @@ import java.util.Optional;
 @Repository
 public interface IUserProfileRepository extends MongoRepository<UserProfile,String> {
     Optional<UserProfile> findOptionalByAuthid(Long id);
+
     Optional<UserProfile> findOptionalByUsername(String username);
-    List<UserProfile> findAllByStatus(Status status);
-    @Query("select u from UserProfile as u where u.status = 'ACTIVE' ")
-    List<UserProfile> getActiveProfile();
+
     Optional<UserProfile> findOptionalByUsernameEqualsIgnoreCase(String username);
+
+
+    List<UserProfile> findAllByStatus(Status status);
+
+    @Query("select u from UserProfile as u  where u.status='ACTIVE'")
+    List<UserProfile> getActiveProfile();
 }

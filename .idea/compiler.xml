@@ -17,6 +17,7 @@
         <module name="SocialMediaProject.mail-service.main" />
         <module name="SocialMediaProject.elastic-service.main" />
         <module name="SocialMediaProject.config-server.main" />
+        <module name="SocialMediaProject.post-service.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="17" />

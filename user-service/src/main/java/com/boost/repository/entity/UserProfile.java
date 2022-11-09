@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 //@Table(name = "tbluserprofile")
 //@Entity
@@ -36,6 +38,8 @@ public class UserProfile implements Serializable {
 //    @Enumerated(EnumType.STRING)
     @Builder.Default
     Status status= Status.PENDING;
+    List<String> follows = new ArrayList<>();
+    List<String> followers = new ArrayList<>();
 
 
 
