@@ -8,6 +8,8 @@ public class ApiUrls {
     public static final String FOLLOWER = VERSION + "/follower";
     public static final String ONLINE = VERSION + "/online";
     public static final String CREATE = "/create";
+    public static final String UNFOLLOW = "/unfollow";
+    public static final String FINDFOLLOWBYID = "/findfollowbyid/{id}";
     public static final String UPDATE = "/update";
     public static final String ACTIVATESTATUSBYID = "/activatestatus/{authid}";
     public static final String ACTIVATESTATUS = "/activatestatus";

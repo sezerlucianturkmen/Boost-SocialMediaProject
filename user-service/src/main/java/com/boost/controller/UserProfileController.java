@@ -4,6 +4,7 @@ import com.boost.dto.request.ActivateRequestDto;
 import com.boost.dto.request.NewUserCreateDto;
 import com.boost.dto.request.UpdateRequestDto;
 import com.boost.dto.response.RoleResponseDto;
+import com.boost.dto.response.UserProfilePostResponseDto;
 import com.boost.dto.response.UserProfileRedisResponseDto;
 import com.boost.dto.response.UserProfileResponseDto;
 import com.boost.exception.ErrorType;
@@ -122,5 +123,13 @@ public class UserProfileController {
     @GetMapping("/findbyslice")
     public ResponseEntity<Slice<UserProfile>> findAllSlice(int pageSize, int pageNumber, String direction, String sortParameter) {
         return ResponseEntity.ok(userProfileService.findallSlice(pageSize, pageNumber, direction, sortParameter));
+    }
+
+    @GetMapping("/findbyautid/{id}")
+    public ResponseEntity<UserProfilePostResponseDto> findbyAuthId(@PathVariable Long id) {
+
+        UserProfilePostResponseDto userProfilePostResponseDto =
+                IUserMapper.INSTANCE.toUserProfilePostResponseDto(userProfileService.findByAuthId(id).get());
+        return ResponseEntity.ok(userProfilePostResponseDto);
     }
 }

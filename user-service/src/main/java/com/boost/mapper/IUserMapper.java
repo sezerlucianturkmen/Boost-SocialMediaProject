@@ -2,6 +2,7 @@ package com.boost.mapper;
 
 import com.boost.dto.request.NewUserCreateDto;
 import com.boost.dto.request.UpdateRequestDto;
+import com.boost.dto.response.UserProfilePostResponseDto;
 import com.boost.dto.response.UserProfileRedisResponseDto;
 import com.boost.dto.response.UserProfileResponseDto;
 import com.boost.repository.entity.UserProfile;
@@ -27,5 +28,7 @@ public interface IUserMapper {
 
     UserProfileResponseDto toUserProfileResponseDto(final  UserProfile userProfile);
     List<UserProfileResponseDto> toUserProfileResponseDtoList(final  List<UserProfile> userProfile);
+
+    UserProfilePostResponseDto toUserProfilePostResponseDto(final UserProfile userProfile);
 
 }

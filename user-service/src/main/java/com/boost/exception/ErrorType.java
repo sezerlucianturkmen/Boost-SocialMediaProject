@@ -20,9 +20,8 @@ public enum ErrorType {
     USERNAME_DUPLICATE(1003, "Bu Kullanıcı adı zaten kullanılıyor.", INTERNAL_SERVER_ERROR),
     USER_NOT_FOUND(1004, "Kullanıcı bulunamadı", INTERNAL_SERVER_ERROR),
     USER_NOT_CREATED(1005, "Kullanıcı KAYDEDİLEMEDİ", INTERNAL_SERVER_ERROR),
-    INVALID_ACTİVATE_CODE(1006, "Activate Code Bulunamdı", INTERNAL_SERVER_ERROR);
-
-
+    INVALID_ACTİVATE_CODE(1006, "Activate Code Bulunamdı", INTERNAL_SERVER_ERROR),
+    FOLLOW_NOT_FOUND(1004, "Takipci kaydı bulunamadı", INTERNAL_SERVER_ERROR);
     private int code;
     private String message;
     HttpStatus httpStatus;
