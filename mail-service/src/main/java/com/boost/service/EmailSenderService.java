@@ -16,7 +16,7 @@ public class EmailSenderService {
 
     public void sendActivateCode(ActivateRequestDto dto) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setFrom("musty1406@gmail.com");
+        mailMessage.setFrom("sezerlucianturkmen01@gmail.com");
         mailMessage.setTo(dto.getEmail());
         mailMessage.setSubject("Aktivasyon Kodunuz");
         mailMessage.setText(dto.getActivatedCode());

@@ -11,4 +11,7 @@ public interface IUserManager {
 
     @GetMapping("/findbyautid/{id}")
     public ResponseEntity<UserProfilePostResponseDto> findbyAuthId(@PathVariable Long id);
+    @GetMapping("/findbyuserid/{id}")
+    public ResponseEntity<UserProfilePostResponseDto> findByUserId(@PathVariable String id);
+
 }

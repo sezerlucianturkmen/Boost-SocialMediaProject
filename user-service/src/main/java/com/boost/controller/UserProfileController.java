@@ -88,8 +88,6 @@ public class UserProfileController {
 
     @GetMapping("/findbyusername/{username}")
     public ResponseEntity<UserProfileRedisResponseDto> findbyUsername(@PathVariable String username) {
-
-
         return ResponseEntity.ok(userProfileService.findByUsername(username));
 
     }
@@ -132,4 +130,12 @@ public class UserProfileController {
                 IUserMapper.INSTANCE.toUserProfilePostResponseDto(userProfileService.findByAuthId(id).get());
         return ResponseEntity.ok(userProfilePostResponseDto);
     }
+    @GetMapping("/findbyuserid/{id}")
+    public ResponseEntity<UserProfilePostResponseDto> findByUserId(@PathVariable String id) {
+        UserProfilePostResponseDto dto =IUserMapper.INSTANCE
+                .toUserProfilePostResponseDto(userProfileService.findById(id).get());
+        return ResponseEntity.ok(dto);
+    }
+
+
 }

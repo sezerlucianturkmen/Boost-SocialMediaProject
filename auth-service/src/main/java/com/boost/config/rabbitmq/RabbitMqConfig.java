@@ -18,17 +18,22 @@ public class RabbitMqConfig {
     private String queueNameActivatedCode;
 
     @Bean
-    DirectExchange exchangeAuth(){
-
+    DirectExchange exchangeAuth() {
         return new DirectExchange(exchange);
     }
+
     @Bean
-    Queue activatedCodeQueue(){
-        return new Queue(bindingKeyActivatedCode);
+    Queue activatedCodeQueue() {
+
+        return new Queue(queueNameActivatedCode);
     }
+
     @Bean
-    public Binding bindingActivatedCode(final Queue activatedCodeQueue,final DirectExchange exchangeAuth){
+    public Binding bindingActivatedCode(final Queue activatedCodeQueue, final DirectExchange exchangeAuth) {
+
         return BindingBuilder.bind(activatedCodeQueue).to(exchangeAuth).with(bindingKeyActivatedCode);
+
+
     }
 
 
