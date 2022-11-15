@@ -1,36 +1,74 @@
 server:
-  port: 80
+  port: ${api-gateway-port}
+
 spring:
-  application:
-    name: api-gateway-service
-  main:
-    web-application-type: reactive
   zipkin:
     enabled: true
-    base-url: http://localhost:9411
+    base-url: ${zipkin-url}
     service:
-      name: api-gateway-service
+      name: gateway-service
+
+  main:
+    web-application-type: reactive
+  application:
+    name: api-gateway-service
   cloud:
     gateway:
       routes:
         - id: auth-service
-          uri: http://localhost:8090
+          uri: ${auth-service-url}
           predicates:
-            - Path=/auth/**
+            - Path= /auth/**
           filters:
             - name: CircuitBreaker
               args:
-                name: auth-service
-                fallbackUri: forward:/fallback-auth-service
+                enabled: true
+                fallbackUri: forward:/fallback/authservice
         - id: user-service
-          uri: http://localhost:8092
+          uri: ${user-service-url}
           predicates:
-            - Path=/user/**
+            - Path= /user/**
           filters:
             - name: CircuitBreaker
               args:
-                name: user-service
-                fallbackUri: forward:/fallback-user-service
+                enabled: true
+                fallbackUri: forward:/fallback/userservice
+        - id: user-service-follow
+          uri: ${user-service-url}
+          predicates:
+            - Path= /follow/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                enabled: true
+                fallbackUri: forward:/fallback/userservice
+        - id: post-service
+          uri: ${post-service-url}
+          predicates:
+            - Path=/post/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                enabled: true
+                fallbackUri: forward:/fallback/postservice
+        - id: elastic-service
 
+          uri: ${elastic-service-uri}
+          predicates:
+            - Path=/elastic/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                enabled: true
+                fallbackUri: forward:/fallback/elasticservice
+        - id: mail-service
+          uri: ${mail-service-url}
+          predicates:
+            - Path=/mail/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                enabled: true
+                fallbackUri: forward:/fallback/mailservice
       default-filters:
-        - RewritePath=/(?<segment>.*),/api/v1/$\{segment}
+        - RewritePath= /(?<segment>.*),/api/v1/$\{segment}

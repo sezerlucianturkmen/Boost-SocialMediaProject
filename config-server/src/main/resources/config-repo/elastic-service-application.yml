@@ -1,29 +1,28 @@
-
 server:
-  port: 8099
+  port: ${elastic-port}
 
 spring:
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: bilgeadmin
-    password: bilge!
+    host: ${rabbitmq-host}
+    port: ${rabbitmq-port}
+    username: ${rabbitmq-username}
+    password: ${rabbitmq-password}
   zipkin:
-    base-url: http://localhost:9411
     enabled: true
+    base-url: ${zipkin-url}
     service:
       name: elastic-service
   elasticsearch:
-    uris: http://localhost:9200
+    uris: ${elastic-service-url}
 
 secretkey: ${secretkey}
-audience:  ${audience}
-issuer:    ${issuer}
+audience: ${audience}
+issuer: ${issuer}
 
 rabbitmq:
-  userUpdateQueueElastic: user-update-queue-elastic
+  userUpdateQueueElastic: ${rabbitmq-userUpdateQueueElastic}
 
 myapplication:
   feign:
-    user: http://localhost:8092/api/v1
-    auth: http://localhost:8090/api/v1calhost:8090/api/v1
+    user: ${myapplication-feign-user}
+    auth: ${myapplication-feign-auth}

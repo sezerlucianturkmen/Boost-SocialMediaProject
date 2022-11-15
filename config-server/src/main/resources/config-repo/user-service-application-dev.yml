@@ -1,0 +1,63 @@
+server:
+  port: 8092
+
+
+
+spring:
+  security:
+    user:
+      name: admin
+      password: 123456
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: bilgeadmin
+    password: bilge!
+  data:
+    mongodb:
+      host: 34.171.58.132
+      port: 14606
+      database: SMUserDB
+      username: bilgeuser
+      password: "bilge!!**"
+  zipkin:
+    enabled: true
+    base-url: http://localhost:9411
+    service:
+      name: user-service
+#
+#  datasource:
+#    username: 'postgres'
+#    password: 'root'
+#    driver-class-name: org.postgresql.Driver
+#    url: 'jdbc:postgresql://localhost:5432/UserProfileDB'
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+
+
+
+#Jwt
+secretkey: ${secretkey}
+audience:  ${audience}
+issuer:    ${issuer}
+
+
+redis:
+  host: localhost
+  port: 6379
+
+
+myapplication:
+  feign:
+    auth: http://localhost:8090/api/v1
+    elastic: http://localhost:8099/api/v1
+
+rabbitmq:
+  exchange-user: user-excahange
+  userUpdateBindingKey: user-update-key
+  userUpdateQueue: user-update-queue
+  userUpdateQueueElastic: user-update-queue-elastic
+  userUpdateBindingKeyElastic: user-update-key-elastic

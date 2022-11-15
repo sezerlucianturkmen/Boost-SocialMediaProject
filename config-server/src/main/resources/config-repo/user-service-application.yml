@@ -1,63 +1,59 @@
 server:
-  port: 8092
-
-
+  port: ${user-port}
 
 spring:
-  security:
-    user:
-      name: admin
-      password: 123456
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: bilgeadmin
-    password: bilge!
   data:
     mongodb:
-      host: 34.171.58.132
-      port: 14606
-      database: SMUserDB
-      username: bilgeuser
-      password: "bilge!!**"
+      host: ${db_mongo_host}
+      port: ${db_mongo_port}
+      database: ${db_mongo_userdb}
+      username: ${db_mongo_username}
+      password: ${db_mongo_password}
+  rabbitmq:
+    host: ${rabbitmq-host}
+    port: ${rabbitmq-port}
+    username: ${rabbitmq-username}
+    password: ${rabbitmq-password}
   zipkin:
     enabled: true
-    base-url: http://localhost:9411
+    base-url: ${zipkin-url}
     service:
       name: user-service
-#
-#  datasource:
-#    username: 'postgres'
-#    password: 'root'
-#    driver-class-name: org.postgresql.Driver
-#    url: 'jdbc:postgresql://localhost:5432/UserProfileDB'
-#
+
+  #  datasource:
+  #    username: 'postgres'
+  #    password: 'root'
+  #    driver-class-name: org.postgresql.Driver
+  #    url: 'jdbc:postgresql://localhost:5432/socialMediaUser'
+
 #  jpa:
 #    hibernate:
-#      ddl-auto: update
+#      ddl-auto: create
 #    show-sql: true
 
 
 
 #Jwt
+
+
 secretkey: ${secretkey}
-audience:  ${audience}
-issuer:    ${issuer}
+audience: ${audience}
+issuer: ${issuer}
 
 
 redis:
-  host: localhost
-  port: 6379
+  host: ${redis-host}
+  port: ${redis-port}
 
 
 myapplication:
   feign:
-    auth: http://localhost:8090/api/v1
-    elastic: http://localhost:8099/api/v1
+    auth: ${myapplication-feign-auth}
+    elastic: ${myapplication-feign-elastic}
 
 rabbitmq:
-  exchange-user: user-excahange
-  userUpdateBindingKey: user-update-key
-  userUpdateQueue: user-update-queue
-  userUpdateQueueElastic: user-update-queue-elastic
-  userUpdateBindingKeyElastic: user-update-key-elastic
+  exchange-user: ${rabbitmq-exchange-user}
+  userUpdateBindingKey: ${rabbitmq-userUpdateBindingKey}
+  userUpdateQueue: ${rabbitmq-userUpdateQueue}
+  userUpdateQueueElastic: ${rabbitmq-userUpdateQueueElastic}
+  userUpdateBindingKeyElastic: ${rabbitmq-userUpdateBindingKeyElastic}

@@ -1,0 +1,29 @@
+
+server:
+  port: 8099
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: bilgeadmin
+    password: bilge!
+  zipkin:
+    base-url: http://localhost:9411
+    enabled: true
+    service:
+      name: elastic-service
+  elasticsearch:
+    uris: http://localhost:9200
+
+secretkey: ${secretkey}
+audience:  ${audience}
+issuer:    ${issuer}
+
+rabbitmq:
+  userUpdateQueueElastic: user-update-queue-elastic
+
+myapplication:
+  feign:
+    user: http://localhost:8092/api/v1
+    auth: http://localhost:8090/api/v1calhost:8090/api/v1

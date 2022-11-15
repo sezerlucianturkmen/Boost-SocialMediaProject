@@ -1,0 +1,27 @@
+server:
+  port: ${mail-port}
+spring:
+  rabbitmq:
+    host: ${rabbitmq-host}
+    port: ${rabbitmq-port}
+    username: ${rabbitmq-username}
+    password: ${rabbitmq-password}
+  zipkin:
+    enabled: true
+    base-url: ${zipkin-url}
+    service:
+      name: mail-service
+  mail:
+    host: ${mailservicehost}
+    port: ${mailserviceport}
+    username: ${mailserviceusername}
+    password: ${mailservicepassword}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+rabbitmq:
+  queueActivated: ${rabbitmq-queueActivated}

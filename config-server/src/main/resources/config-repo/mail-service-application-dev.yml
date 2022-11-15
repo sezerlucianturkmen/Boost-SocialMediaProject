@@ -1,0 +1,22 @@
+server:
+  port: 8094
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: bilgeadmin
+    password: bilge!
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sezerlucianturkmen01@gmail.com
+    password: xwdywaawnkicyvri
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+rabbitmq:
+  queueActivated: activated-queue
